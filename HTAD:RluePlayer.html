@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>黑铁音频：顺序播放器</title>
     <style>
+        /* 保持您原有的所有样式不变 */
         * {
             margin: 0;
             padding: 0;
@@ -301,137 +302,161 @@
             height: 100%;
             cursor: pointer;
         }
-        
-     /* 删除或注释掉原来的 @media 查询，替换为以下代码 */
 
-/* 电脑端布局 */
-@media (min-width: 769px) {
-    .main-content {
-        flex-direction: row;
-        min-height: calc(100vh - 160px); /* 填充页面高度 */
-    }
-    
-    .player-section {
-        flex: 2; /* 2/3宽度 */
-        border-right: 1px solid rgba(218, 165, 32, 0.3);
-        border-bottom: none;
-        padding: 30px;
-        min-height: 100%;
-    }
-    
-    .playlist-section {
-        flex: 1; /* 1/3宽度 */
-        max-height: none;
-        height: auto;
-        border-left: 1px solid rgba(218, 165, 32, 0.2);
-    }
-    
-    h1 {
-        font-size: 2.5rem;
-    }
-    
-    .audio-title {
-        font-size: 1.8rem;
-    }
-    
-    .container {
-        max-width: 1200px;
-        min-height: 95vh; /* 电脑端适当高度 */
-    }
-}
+        /* 文件夹选择提示 */
+        .folder-tips {
+            background: rgba(218, 165, 32, 0.1);
+            border: 1px solid rgba(218, 165, 32, 0.3);
+            border-radius: 8px;
+            padding: 12px;
+            margin: 10px 0;
+            font-size: 0.85rem;
+            color: #FFD700;
+        }
 
-/* 手机端布局 */
-@media (max-width: 768px) {
-    body {
-        padding: 8px;
-    }
-    
-    .container {
-        min-height: 98vh; /* 手机端填充高度 */
-    }
-    
-    .main-content {
-        min-height: calc(100vh - 140px); /* 手机端填充计算 */
-    }
-    
-    .player-section {
-        padding: 20px 15px;
-        border-bottom: 1px solid rgba(218, 165, 32, 0.3);
-        min-height: 60vh; /* 手机端播放区域高度 */
-    }
-    
-    .playlist-section {
-        max-height: 35vh; /* 手机端播放列表高度 */
-        flex: 1;
-    }
-    
-    h1 {
-        font-size: 1.6rem;
-        padding: 0 10px;
-    }
-    
-    .subtitle {
-        font-size: 0.8rem;
-    }
-    
-    .audio-title {
-        font-size: 1.2rem;
-        min-height: 44px;
-        padding: 8px;
-    }
-    
-    .control-buttons {
-        gap: 8px;
-    }
-    
-    button {
-        padding: 12px 16px;
-        font-size: 0.9rem;
-        min-width: 70px;
-    }
-    
-    #play-pause-btn {
-        padding: 14px 20px;
-        min-width: 80px;
-    }
-}
+        .folder-tips h4 {
+            margin: 0 0 8px 0;
+            color: #FFD700;
+        }
 
-/* 通用高度调整 */
-.container {
-    display: flex;
-    flex-direction: column;
-}
+        .folder-tips ul {
+            margin: 0;
+            padding-left: 20px;
+            text-align: left;
+        }
 
-.main-content {
-    flex: 1; /* 填充剩余空间 */
-    display: flex;
-}
+        .folder-tips li {
+            margin-bottom: 5px;
+        }
 
-/* 确保播放列表可以滚动 */
-.playlist-section {
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch; /* 手机端流畅滚动 */
-}
+        /* 电脑端布局 */
+        @media (min-width: 769px) {
+            .main-content {
+                flex-direction: row;
+                min-height: calc(100vh - 160px);
+            }
+            
+            .player-section {
+                flex: 2;
+                border-right: 1px solid rgba(218, 165, 32, 0.3);
+                border-bottom: none;
+                padding: 30px;
+                min-height: 100%;
+            }
+            
+            .playlist-section {
+                flex: 1;
+                max-height: none;
+                height: auto;
+                border-left: 1px solid rgba(218, 165, 32, 0.2);
+            }
+            
+            h1 {
+                font-size: 2.5rem;
+            }
+            
+            .audio-title {
+                font-size: 1.8rem;
+            }
+            
+            .container {
+                max-width: 1200px;
+                min-height: 95vh;
+            }
+        }
 
-/* 播放器区域内容居中 */
-.player-section {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-}
+        /* 手机端布局 */
+        @media (max-width: 768px) {
+            body {
+                padding: 8px;
+            }
+            
+            .container {
+                min-height: 98vh;
+            }
+            
+            .main-content {
+                min-height: calc(100vh - 140px);
+            }
+            
+            .player-section {
+                padding: 20px 15px;
+                border-bottom: 1px solid rgba(218, 165, 32, 0.3);
+                min-height: 60vh;
+            }
+            
+            .playlist-section {
+                max-height: 35vh;
+                flex: 1;
+            }
+            
+            h1 {
+                font-size: 1.6rem;
+                padding: 0 10px;
+            }
+            
+            .subtitle {
+                font-size: 0.8rem;
+            }
+            
+            .audio-title {
+                font-size: 1.2rem;
+                min-height: 44px;
+                padding: 8px;
+            }
+            
+            .control-buttons {
+                gap: 8px;
+            }
+            
+            button {
+                padding: 12px 16px;
+                font-size: 0.9rem;
+                min-width: 70px;
+            }
+            
+            #play-pause-btn {
+                padding: 14px 20px;
+                min-width: 80px;
+            }
+        }
+
+        /* 通用高度调整 */
+        .container {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+        }
+
+        /* 确保播放列表可以滚动 */
+        .playlist-section {
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        /* 播放器区域内容居中 */
+        .player-section {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <header>
             <h1>黑铁音频：顺序播放器</h1>
-            <p class="subtitle">按目录顺序播放，支持记忆播放位置</p>
+            <p class="subtitle">文件夹播放，支持记忆播放位置</p>
         </header>
         
         <div class="main-content">
             <section class="player-section">
                 <div class="audio-info">
-                    <h2 class="audio-title">请选择音频目录</h2>
+                    <h2 class="audio-title" id="audio-title">请选择音频文件夹</h2>
                     <p class="audio-duration">--:-- / --:--</p>
                 </div>
                 
@@ -454,11 +479,21 @@
                 
                 <div class="directory-selector">
                     <div class="file-input-wrapper">
-                        <button id="select-dir-btn">选择音频文件夹</button>
+                        <button id="select-folder-btn">选择音频文件夹</button>
                         <input type="file" id="folder-input" webkitdirectory directory multiple accept="audio/*">
                     </div>
-                    <button id="reselect-dir-btn" style="display:none;">重新选择文件夹</button>
+                    <button id="reselect-btn" style="display:none;">重新选择文件夹</button>
                     <div class="current-directory" id="current-dir">未选择文件夹</div>
+                    
+                    <!-- 文件夹选择提示 -->
+                    <div class="folder-tips">
+                        <h4>📁 文件夹选择提示：</h4>
+                        <ul>
+                            <li><strong>电脑端：</strong>直接点击上方按钮选择文件夹</li>
+                            <li><strong>手机端：</strong>请使用支持文件夹选择的文件管理器</li>
+                            <li><strong>推荐应用：</strong>ES文件浏览器、Solid Explorer等</li>
+                        </ul>
+                    </div>
                 </div>
                 
                 <!-- 隐藏的音频元素 -->
@@ -469,14 +504,14 @@
                 <h3 class="playlist-title">播放列表</h3>
                 <div class="empty-state" id="empty-state">
                     <i>♪</i>
-                    <p>暂无音频文件，请选择目录</p>
+                    <p>暂无音频文件，请选择文件夹</p>
                 </div>
                 <ul class="playlist" style="display: none;"></ul>
             </section>
         </div>
         
         <footer>
-            <p>黑铁音频：顺序播放器 &copy; 2025 | 支持MP3、M4A、WAV等格式</p>
+            <p>黑铁音频：顺序播放器 &copy; 2025 | 支持文件夹播放，记忆播放位置</p>
         </footer>
     </div>
 
@@ -488,11 +523,12 @@
             isPlaying: false,
             currentTime: 0,
             duration: 0,
-            selectedDirectory: null
+            selectedDirectory: null,
+            lastPlaybackTime: 0
         };
 
         // DOM元素
-        const audioTitle = document.querySelector('.audio-title');
+        const audioTitle = document.getElementById('audio-title');
         const audioDuration = document.querySelector('.audio-duration');
         const progressBar = document.querySelector('.progress-bar');
         const progressContainer = document.querySelector('.progress-container');
@@ -502,29 +538,169 @@
         const prevBtn = document.getElementById('prev-btn');
         const nextBtn = document.getElementById('next-btn');
         const folderInput = document.getElementById('folder-input');
-        const selectDirBtn = document.getElementById('select-dir-btn');
-        const reselectDirBtn = document.getElementById('reselect-dir-btn');
+        const selectFolderBtn = document.getElementById('select-folder-btn');
+        const reselectBtn = document.getElementById('reselect-btn');
         const currentDirEl = document.getElementById('current-dir');
         const playlistEl = document.querySelector('.playlist');
         const emptyState = document.getElementById('empty-state');
         const audioElement = document.getElementById('audio-element');
 
+        // 存储键名
+        const STORAGE_KEYS = {
+            AUDIO_FILES: 'audioFilesData',
+            CURRENT_INDEX: 'currentAudioIndex',
+            CURRENT_TIME: 'currentAudioTime',
+            DIRECTORY_NAME: 'lastDirectoryName',
+            LAST_SESSION: 'lastSessionData'
+        };
+
+        // 检测是否支持文件夹选择
+        function supportsFolderSelection() {
+            return 'webkitdirectory' in document.createElement('input') || 
+                   'directory' in document.createElement('input');
+        }
+
         // 初始化应用
         function initApp() {
-            // 恢复上次播放位置
-            const savedIndex = localStorage.getItem('currentAudioIndex');
-            if (savedIndex !== null) {
-                state.currentIndex = parseInt(savedIndex);
+            // 检查文件夹选择支持
+            if (!supportsFolderSelection()) {
+                showMobileAlternative();
             }
             
-            // 恢复上次选择的文件夹
-            const savedDir = localStorage.getItem('lastDirectoryName');
-            if (savedDir) {
-                currentDirEl.textContent = `上次选择: ${savedDir}`;
-            }
-            
-            // 设置事件监听器
+            loadLastSession();
             setupEventListeners();
+        }
+
+        // 显示手机端替代方案
+        function showMobileAlternative() {
+            const folderTips = document.querySelector('.folder-tips');
+            folderTips.innerHTML = `
+                <h4>📱 手机端使用说明：</h4>
+                <ul>
+                    <li><strong>方法1：</strong>使用支持文件夹选择的文件管理器</li>
+                    <li><strong>方法2：</strong>安装第三方文件选择器应用</li>
+                    <li><strong>方法3：</strong>使用下方按钮选择多个文件</li>
+                </ul>
+                <div style="margin-top: 10px;">
+                    <button onclick="showMultiFileSelector()" style="background: rgba(218, 165, 32, 0.3); border: 1px solid #DAA520; padding: 8px 16px; border-radius: 20px; color: #FFD700; font-size: 0.8rem;">
+                        选择多个音频文件
+                    </button>
+                </div>
+            `;
+        }
+
+        // 显示多文件选择器
+        function showMultiFileSelector() {
+            const multiFileInput = document.createElement('input');
+            multiFileInput.type = 'file';
+            multiFileInput.multiple = true;
+            multiFileInput.accept = 'audio/*';
+            multiFileInput.style.display = 'none';
+            
+            multiFileInput.onchange = function(e) {
+                handleFilesSelection(e.target.files);
+                document.body.removeChild(multiFileInput);
+            };
+            
+            document.body.appendChild(multiFileInput);
+            multiFileInput.click();
+        }
+
+        // 处理文件选择
+        function handleFilesSelection(files) {
+            const fileList = Array.from(files);
+            
+            if (fileList.length === 0) return;
+            
+            // 过滤出音频文件
+            const audioFiles = fileList.filter(file => {
+                return file.type.startsWith('audio/') || 
+                       ['.mp3', '.wav', '.ogg', '.m4a', '.aac', '.flac'].some(ext => 
+                           file.name.toLowerCase().endsWith(ext));
+            });
+            
+            if (audioFiles.length === 0) {
+                alert('没有找到支持的音频文件！\n支持格式：MP3, WAV, OGG, M4A, AAC, FLAC');
+                return;
+            }
+            
+            // 按文件名排序
+            audioFiles.sort((a, b) => a.name.localeCompare(b.name));
+            
+            // 更新状态
+            state.audioFiles = audioFiles;
+            state.currentIndex = 0;
+            state.lastPlaybackTime = 0;
+            
+            // 保存目录信息
+            const directoryName = '手动选择的文件';
+            localStorage.setItem(STORAGE_KEYS.DIRECTORY_NAME, directoryName);
+            currentDirEl.textContent = `已选择: ${audioFiles.length} 个音频文件`;
+            
+            // 显示重新选择按钮
+            selectFolderBtn.style.display = 'none';
+            reselectBtn.style.display = 'block';
+            
+            updateUI();
+            
+            // 自动播放第一首
+            playAudio(state.currentIndex);
+        }
+
+        // 加载上次会话
+        function loadLastSession() {
+            try {
+                const lastSession = localStorage.getItem(STORAGE_KEYS.LAST_SESSION);
+                const lastDir = localStorage.getItem(STORAGE_KEYS.DIRECTORY_NAME);
+                
+                if (lastSession) {
+                    const sessionData = JSON.parse(lastSession);
+                    
+                    if (sessionData.audioFiles && sessionData.audioFiles.length > 0) {
+                        state.audioFiles = sessionData.audioFiles;
+                        state.currentIndex = sessionData.currentIndex || 0;
+                        state.lastPlaybackTime = sessionData.currentTime || 0;
+                        
+                        updateUI();
+                        
+                        if (lastDir) {
+                            currentDirEl.textContent = `已加载: ${lastDir} (${state.audioFiles.length}个文件)`;
+                        } else {
+                            currentDirEl.textContent = `已加载上次的 ${state.audioFiles.length} 个文件`;
+                        }
+                        
+                        selectFolderBtn.style.display = 'none';
+                        reselectBtn.style.display = 'block';
+                        
+                        // 显示恢复播放提示
+                        if (state.lastPlaybackTime > 0) {
+                            audioTitle.textContent = `点击播放继续上次位置 (${formatTime(state.lastPlaybackTime)})`;
+                        } else {
+                            audioTitle.textContent = state.audioFiles[state.currentIndex]?.name || '准备播放';
+                        }
+                    }
+                } else if (lastDir) {
+                    currentDirEl.textContent = `上次选择: ${lastDir}`;
+                }
+            } catch (error) {
+                console.error('加载上次会话失败:', error);
+            }
+        }
+
+        // 保存会话数据
+        function saveSession() {
+            try {
+                const sessionData = {
+                    audioFiles: state.audioFiles,
+                    currentIndex: state.currentIndex,
+                    currentTime: state.currentTime,
+                    timestamp: Date.now()
+                };
+                
+                localStorage.setItem(STORAGE_KEYS.LAST_SESSION, JSON.stringify(sessionData));
+            } catch (error) {
+                console.error('保存会话失败:', error);
+            }
         }
 
         // 设置事件监听器
@@ -533,13 +709,24 @@
             prevBtn.addEventListener('click', playPrevious);
             nextBtn.addEventListener('click', playNext);
             folderInput.addEventListener('change', handleFolderSelection);
-            reselectDirBtn.addEventListener('click', () => folderInput.click());
+            reselectBtn.addEventListener('click', () => folderInput.click());
             progressContainer.addEventListener('click', setProgress);
             
             // 音频元素事件
             audioElement.addEventListener('loadedmetadata', updateDuration);
             audioElement.addEventListener('timeupdate', updateProgress);
             audioElement.addEventListener('ended', playNext);
+            audioElement.addEventListener('canplaythrough', restorePlaybackPosition);
+            
+            // 页面可见性变化时保存状态
+            document.addEventListener('visibilitychange', () => {
+                if (document.hidden) {
+                    saveSession();
+                }
+            });
+            
+            // 页面卸载前保存状态
+            window.addEventListener('beforeunload', saveSession);
         }
 
         // 处理文件夹选择
@@ -565,23 +752,30 @@
             
             // 更新状态
             state.audioFiles = audioFiles;
+            state.currentIndex = 0;
+            state.lastPlaybackTime = 0;
             
             // 保存目录信息
             const directoryName = files[0].webkitRelativePath.split('/')[0] || '未知文件夹';
-            localStorage.setItem('lastDirectoryName', directoryName);
-            currentDirEl.textContent = `已选择: ${directoryName}`;
+            localStorage.setItem(STORAGE_KEYS.DIRECTORY_NAME, directoryName);
+            currentDirEl.textContent = `已选择: ${directoryName} (${audioFiles.length}个文件)`;
             
             // 显示重新选择按钮
-            selectDirBtn.style.display = 'none';
-            reselectDirBtn.style.display = 'block';
+            selectFolderBtn.style.display = 'none';
+            reselectBtn.style.display = 'block';
             
             updateUI();
             
             // 自动播放第一首
-            if (state.currentIndex >= state.audioFiles.length) {
-                state.currentIndex = 0;
-            }
             playAudio(state.currentIndex);
+        }
+
+        // 恢复播放位置
+        function restorePlaybackPosition() {
+            if (state.lastPlaybackTime > 0 && state.lastPlaybackTime < audioElement.duration - 1) {
+                audioElement.currentTime = state.lastPlaybackTime;
+                state.lastPlaybackTime = 0; // 重置
+            }
         }
 
         // 更新UI
@@ -629,7 +823,8 @@
             playPauseBtn.textContent = '暂停';
             
             // 保存当前播放位置
-            localStorage.setItem('currentAudioIndex', index);
+            state.currentIndex = index;
+            saveSession();
         }
 
         // 播放音频
@@ -676,6 +871,11 @@
             
             currentTimeEl.textContent = formatTime(state.currentTime);
             audioDuration.textContent = `${formatTime(state.currentTime)} / ${formatTime(state.duration)}`;
+            
+            // 定期保存播放位置（每5秒）
+            if (Math.floor(state.currentTime) % 5 === 0) {
+                saveSession();
+            }
         }
 
         // 切换播放/暂停
@@ -689,6 +889,7 @@
                 audioElement.pause();
                 state.isPlaying = false;
                 playPauseBtn.textContent = '播放';
+                saveSession();
             } else {
                 audioElement.play().then(() => {
                     state.isPlaying = true;
@@ -706,7 +907,7 @@
             
             let newIndex = state.currentIndex - 1;
             if (newIndex < 0) {
-                newIndex = state.audioFiles.length - 1; // 循环到最后一首
+                newIndex = state.audioFiles.length - 1;
             }
             playAudio(newIndex);
         }
@@ -717,7 +918,7 @@
             
             let newIndex = state.currentIndex + 1;
             if (newIndex >= state.audioFiles.length) {
-                newIndex = 0; // 循环到第一首
+                newIndex = 0;
             }
             playAudio(newIndex);
         }
