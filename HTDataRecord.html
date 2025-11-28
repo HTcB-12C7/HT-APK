@@ -8,7 +8,7 @@
         :root {
             --primary-color: #4a6fa5;
             --secondary-color: #6b8cbc;
-            --accent-color: #ff6b6b;
+            --accent-color: #ffd700;
             --light-color: #f5f7fa;
             --dark-color: #2c3e50;
             --success-color: #2ecc71;
@@ -26,36 +26,86 @@
         }
         
         body {
-            background-color: #f0f2f5;
-            color: var(--dark-color);
+            background: linear-gradient(to bottom, #87CEEB, #E0F6FF);
+            color: #333;
             line-height: 1.6;
             padding: 20px;
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+        
+        /* 白云背景 */
+        .cloud {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            opacity: 0.8;
+            z-index: -1;
+        }
+        
+        .cloud-1 {
+            width: 120px;
+            height: 40px;
+            top: 10%;
+            left: 5%;
+            box-shadow: 
+                0 0 20px 15px white,
+                20px 0 20px 10px white,
+                -20px 0 20px 10px white;
+        }
+        
+        .cloud-2 {
+            width: 150px;
+            height: 50px;
+            top: 20%;
+            right: 10%;
+            box-shadow: 
+                0 0 25px 20px white,
+                25px 0 25px 15px white,
+                -25px 0 25px 15px white;
+        }
+        
+        .cloud-3 {
+            width: 100px;
+            height: 35px;
+            bottom: 15%;
+            left: 15%;
+            box-shadow: 
+                0 0 15px 10px white,
+                15px 0 15px 8px white,
+                -15px 0 15px 8px white;
         }
         
         .container {
             max-width: 1200px;
             margin: 0 auto;
-            background-color: white;
+            background-color: rgba(255, 255, 255, 0.9);
             border-radius: var(--border-radius);
             box-shadow: var(--box-shadow);
             overflow: hidden;
+            position: relative;
+            z-index: 1;
         }
         
         header {
             background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            color: white;
+            color: #ffd700;
             padding: 20px;
             text-align: center;
+            position: relative;
         }
         
         h1 {
             font-size: 2.2rem;
             margin-bottom: 10px;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
         }
         
         .subtitle {
             font-size: 1.1rem;
             opacity: 0.9;
+            color: #ffd700;
         }
         
         .main-content {
@@ -70,8 +120,9 @@
             gap: 15px;
             margin-bottom: 20px;
             padding: 15px;
-            background-color: var(--light-color);
+            background-color: rgba(255, 255, 255, 0.7);
             border-radius: var(--border-radius);
+            border: 1px solid rgba(255, 215, 0, 0.3);
         }
         
         .btn {
@@ -84,31 +135,33 @@
             display: flex;
             align-items: center;
             gap: 8px;
+            background: linear-gradient(to bottom, #4a6fa5, #3a5f8a);
+            color: #ffd700;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
         }
         
-        .btn-primary {
-            background-color: var(--primary-color);
-            color: white;
-        }
-        
-        .btn-primary:hover {
-            background-color: var(--secondary-color);
+        .btn:hover {
             transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+        
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
         }
         
         .btn-success {
-            background-color: var(--success-color);
-            color: white;
+            background: linear-gradient(to bottom, #2ecc71, #27ae60);
         }
         
         .btn-warning {
-            background-color: var(--warning-color);
-            color: white;
+            background: linear-gradient(to bottom, #f39c12, #e67e22);
         }
         
         .btn-danger {
-            background-color: var(--danger-color);
-            color: white;
+            background: linear-gradient(to bottom, #e74c3c, #c0392b);
         }
         
         .status-panel {
@@ -117,18 +170,20 @@
             gap: 15px;
             margin-bottom: 20px;
             padding: 15px;
-            background-color: var(--light-color);
+            background-color: rgba(255, 255, 255, 0.7);
             border-radius: var(--border-radius);
+            border: 1px solid rgba(255, 215, 0, 0.3);
         }
         
         .status-item {
             display: flex;
             flex-direction: column;
             padding: 10px 15px;
-            background-color: white;
+            background-color: rgba(255, 255, 255, 0.9);
             border-radius: var(--border-radius);
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
             min-width: 150px;
+            border: 1px solid rgba(255, 215, 0, 0.2);
         }
         
         .status-label {
@@ -140,16 +195,18 @@
             font-size: 1.2rem;
             font-weight: 600;
             margin-top: 5px;
+            color: #333;
         }
         
         .file-list-container {
             flex: 1;
             display: flex;
             flex-direction: column;
-            background-color: white;
+            background-color: rgba(255, 255, 255, 0.7);
             border-radius: var(--border-radius);
             overflow: hidden;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(255, 215, 0, 0.3);
         }
         
         .file-list-header {
@@ -157,8 +214,8 @@
             grid-template-columns: 1fr 120px 150px 100px;
             gap: 10px;
             padding: 15px;
-            background-color: var(--primary-color);
-            color: white;
+            background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+            color: #ffd700;
             font-weight: 600;
         }
         
@@ -172,31 +229,31 @@
             grid-template-columns: 1fr 120px 150px 100px;
             gap: 10px;
             padding: 12px 15px;
-            border-bottom: 1px solid #eee;
+            border-bottom: 1px solid rgba(255, 215, 0, 0.2);
             transition: background-color 0.2s;
         }
         
         .file-item:hover {
-            background-color: #f9f9f9;
+            background-color: rgba(255, 215, 0, 0.1);
         }
         
         .file-item.new {
-            background-color: rgba(46, 204, 113, 0.1);
+            background-color: rgba(46, 204, 113, 0.2);
             animation: highlight 2s ease;
         }
         
         .file-item.modified {
-            background-color: rgba(243, 156, 18, 0.1);
+            background-color: rgba(243, 156, 18, 0.2);
             animation: highlight 2s ease;
         }
         
         .file-item.deleted {
-            background-color: rgba(231, 76, 60, 0.1);
+            background-color: rgba(231, 76, 60, 0.2);
             animation: highlight 2s ease;
         }
         
         @keyframes highlight {
-            0% { background-color: rgba(255, 255, 0, 0.3); }
+            0% { background-color: rgba(255, 215, 0, 0.3); }
             100% { background-color: transparent; }
         }
         
@@ -225,12 +282,14 @@
             border-radius: 4px;
             cursor: pointer;
             font-size: 0.8rem;
-            background-color: var(--primary-color);
-            color: white;
+            background: linear-gradient(to bottom, #4a6fa5, #3a5f8a);
+            color: #ffd700;
+            transition: all 0.2s;
         }
         
         .action-btn:hover {
             opacity: 0.9;
+            transform: translateY(-1px);
         }
         
         .empty-state {
@@ -262,9 +321,10 @@
         footer {
             text-align: center;
             padding: 15px;
-            background-color: var(--light-color);
+            background-color: rgba(255, 255, 255, 0.7);
             color: #7f8c8d;
             font-size: 0.9rem;
+            border-top: 1px solid rgba(255, 215, 0, 0.3);
         }
         
         @media (max-width: 768px) {
@@ -279,6 +339,11 @@
     </style>
 </head>
 <body>
+    <!-- 白云背景 -->
+    <div class="cloud cloud-1"></div>
+    <div class="cloud cloud-2"></div>
+    <div class="cloud cloud-3"></div>
+    
     <div class="container">
         <header>
             <h1>文件夹监控与文件导航系统</h1>
@@ -361,6 +426,7 @@
         let isMonitoring = false;
         let fileMap = new Map(); // 存储文件信息
         let monitoringInterval = null;
+        let originalFileMap = new Map(); // 存储原始文件状态用于比较
         
         // DOM元素
         const selectFolderBtn = document.getElementById('selectFolderBtn');
@@ -396,11 +462,21 @@
                 monitoredFolder.textContent = folderName;
                 startMonitoringBtn.disabled = false;
                 
+                // 清空文件列表
+                fileMap.clear();
+                originalFileMap.clear();
+                
                 // 扫描初始文件
                 await scanFolder(selectedFolderHandle);
                 
+                // 保存原始状态
+                originalFileMap = new Map(fileMap);
+                
                 // 更新文件总数
                 totalFiles.textContent = fileMap.size;
+                
+                // 显示文件列表
+                renderFileList();
                 
                 // 显示成功消息
                 showNotification(`已选择文件夹: ${folderName}`, 'success');
@@ -456,10 +532,10 @@
             startMonitoringBtn.disabled = true;
             stopMonitoringBtn.disabled = false;
             
-            // 每3秒检查一次文件变化
+            // 每2秒检查一次文件变化
             monitoringInterval = setInterval(async () => {
                 await checkForChanges();
-            }, 3000);
+            }, 2000);
             
             showNotification('文件夹监控已启动', 'success');
         }
@@ -482,45 +558,69 @@
         
         // 检查文件变化
         async function checkForChanges() {
+            if (!selectedFolderHandle) return;
+            
             try {
+                // 创建新的文件映射
                 const newFileMap = new Map();
                 await scanFolder(selectedFolderHandle);
                 
                 // 检查新增和修改的文件
                 for (const [path, fileInfo] of fileMap.entries()) {
-                    const file = await fileInfo.handle.getFile();
-                    const existingFile = fileMap.get(path);
+                    const originalFile = originalFileMap.get(path);
                     
-                    if (!existingFile) {
+                    if (!originalFile) {
                         // 新增文件
                         addFileToList(fileInfo, 'new');
                         lastChange.textContent = `新增: ${fileInfo.name}`;
-                    } else if (file.lastModified !== existingFile.lastModified) {
+                        showNotification(`检测到新文件: ${fileInfo.name}`, 'success');
+                    } else if (fileInfo.lastModified !== originalFile.lastModified) {
                         // 修改文件
-                        fileInfo.lastModified = file.lastModified;
-                        fileInfo.size = file.size;
                         updateFileInList(fileInfo, 'modified');
                         lastChange.textContent = `修改: ${fileInfo.name}`;
+                        showNotification(`文件已修改: ${fileInfo.name}`, 'warning');
                     }
                     
                     newFileMap.set(path, fileInfo);
                 }
                 
                 // 检查删除的文件
-                for (const [path, fileInfo] of fileMap.entries()) {
-                    if (!newFileMap.has(path)) {
+                for (const [path, fileInfo] of originalFileMap.entries()) {
+                    if (!fileMap.has(path)) {
                         // 删除文件
                         markFileAsDeleted(fileInfo);
                         lastChange.textContent = `删除: ${fileInfo.name}`;
+                        showNotification(`文件已删除: ${fileInfo.name}`, 'error');
                     }
                 }
                 
                 // 更新文件映射
+                originalFileMap = new Map(fileMap);
                 fileMap = newFileMap;
                 totalFiles.textContent = fileMap.size;
                 
             } catch (error) {
                 console.error('检查文件变化时出错:', error);
+            }
+        }
+        
+        // 渲染文件列表
+        function renderFileList() {
+            // 清空文件列表
+            fileList.innerHTML = '';
+            
+            if (fileMap.size === 0) {
+                fileList.innerHTML = `
+                    <div class="empty-state">
+                        <p>文件夹为空</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            // 添加所有文件到列表
+            for (const fileInfo of fileMap.values()) {
+                addFileToList(fileInfo);
             }
         }
         
@@ -560,17 +660,19 @@
                 </div>
             `;
             
-            // 添加到列表顶部
-            fileList.prepend(fileItem);
+            // 添加到列表
+            fileList.appendChild(fileItem);
             
             // 添加事件监听
             fileItem.querySelector('.open-file').addEventListener('click', () => openFile(fileInfo));
             fileItem.querySelector('.show-in-folder').addEventListener('click', () => showInFolder(fileInfo));
             
-            // 3秒后移除高亮效果
-            setTimeout(() => {
-                fileItem.classList.remove(changeType);
-            }, 3000);
+            // 如果是变化类型，3秒后移除高亮效果
+            if (changeType) {
+                setTimeout(() => {
+                    fileItem.classList.remove(changeType);
+                }, 3000);
+            }
         }
         
         // 更新文件列表中的文件
@@ -629,7 +731,7 @@
                     if (fileList.children.length === 0) {
                         fileList.innerHTML = `
                             <div class="empty-state">
-                                <p>请选择一个文件夹开始监控</p>
+                                <p>文件夹为空</p>
                             </div>
                         `;
                     }
