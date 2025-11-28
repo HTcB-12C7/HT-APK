@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文件夹监控与文件导航系统</title>
+    <style>
+        :root {
+            --primary-color: #4a6fa5;
+            --secondary-color: #6b8cbc;
+            --accent-color: #ff6b6b;
+            --light-color: #f5f7fa;
+            --dark-color: #2c3e50;
+            --success-color: #2ecc71;
+            --warning-color: #f39c12;
+            --danger-color: #e74c3c;
+            --border-radius: 8px;
+            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f0f2f5;
+            color: var(--dark-color);
+            line-height: 1.6;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            overflow: hidden;
+        }
+        
+        header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        h1 {
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+        }
+        
+        .control-panel {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: var(--light-color);
+            border-radius: var(--border-radius);
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-2px);
+        }
+        
+        .btn-success {
+            background-color: var(--success-color);
+            color: white;
+        }
+        
+        .btn-warning {
+            background-color: var(--warning-color);
+            color: white;
+        }
+        
+        .btn-danger {
+            background-color: var(--danger-color);
+            color: white;
+        }
+        
+        .status-panel {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: var(--light-color);
+            border-radius: var(--border-radius);
+        }
+        
+        .status-item {
+            display: flex;
+            flex-direction: column;
+            padding: 10px 15px;
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            min-width: 150px;
+        }
+        
+        .status-label {
+            font-size: 0.9rem;
+            color: #7f8c8d;
+        }
+        
+        .status-value {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-top: 5px;
+        }
+        
+        .file-list-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background-color: white;
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+        
+        .file-list-header {
+            display: grid;
+            grid-template-columns: 1fr 120px 150px 100px;
+            gap: 10px;
+            padding: 15px;
+            background-color: var(--primary-color);
+            color: white;
+            font-weight: 600;
+        }
+        
+        .file-list {
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        
+        .file-item {
+            display: grid;
+            grid-template-columns: 1fr 120px 150px 100px;
+            gap: 10px;
+            padding: 12px 15px;
+            border-bottom: 1px solid #eee;
+            transition: background-color 0.2s;
+        }
+        
+        .file-item:hover {
+            background-color: #f9f9f9;
+        }
+        
+        .file-item.new {
+            background-color: rgba(46, 204, 113, 0.1);
+            animation: highlight 2s ease;
+        }
+        
+        .file-item.modified {
+            background-color: rgba(243, 156, 18, 0.1);
+            animation: highlight 2s ease;
+        }
+        
+        .file-item.deleted {
+            background-color: rgba(231, 76, 60, 0.1);
+            animation: highlight 2s ease;
+        }
+        
+        @keyframes highlight {
+            0% { background-color: rgba(255, 255, 0, 0.3); }
+            100% { background-color: transparent; }
+        }
+        
+        .file-name {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .file-icon {
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .file-action {
+            display: flex;
+            gap: 5px;
+        }
+        
+        .action-btn {
+            padding: 5px 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .action-btn:hover {
+            opacity: 0.9;
+        }
+        
+        .empty-state {
+            padding: 40px 20px;
+            text-align: center;
+            color: #7f8c8d;
+        }
+        
+        .change-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+        
+        .change-new {
+            background-color: var(--success-color);
+        }
+        
+        .change-modified {
+            background-color: var(--warning-color);
+        }
+        
+        .change-deleted {
+            background-color: var(--danger-color);
+        }
+        
+        footer {
+            text-align: center;
+            padding: 15px;
+            background-color: var(--light-color);
+            color: #7f8c8d;
+            font-size: 0.9rem;
+        }
+        
+        @media (max-width: 768px) {
+            .file-list-header, .file-item {
+                grid-template-columns: 1fr 80px 100px;
+            }
+            
+            .file-size {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>文件夹监控与文件导航系统</h1>
+            <p class="subtitle">实时监控文件夹变化并快速导航到文件</p>
+        </header>
+        
+        <div class="main-content">
+            <div class="control-panel">
+                <button id="selectFolderBtn" class="btn btn-primary">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+                    </svg>
+                    选择文件夹
+                </button>
+                <button id="startMonitoringBtn" class="btn btn-success" disabled>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <polygon points="10,8 16,12 10,16"></polygon>
+                    </svg>
+                    开始监控
+                </button>
+                <button id="stopMonitoringBtn" class="btn btn-danger" disabled>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="6" y="6" width="12" height="12"></rect>
+                    </svg>
+                    停止监控
+                </button>
+                <button id="clearLogBtn" class="btn btn-warning">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="3 6 5 6 21 6"></polyline>
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                    </svg>
+                    清空日志
+                </button>
+            </div>
+            
+            <div class="status-panel">
+                <div class="status-item">
+                    <span class="status-label">监控状态</span>
+                    <span id="monitoringStatus" class="status-value">未启动</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">监控文件夹</span>
+                    <span id="monitoredFolder" class="status-value">未选择</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">文件总数</span>
+                    <span id="totalFiles" class="status-value">0</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">最近变化</span>
+                    <span id="lastChange" class="status-value">无</span>
+                </div>
+            </div>
+            
+            <div class="file-list-container">
+                <div class="file-list-header">
+                    <span>文件名</span>
+                    <span>大小</span>
+                    <span>修改时间</span>
+                    <span>操作</span>
+                </div>
+                
+                <div id="fileList" class="file-list">
+                    <div class="empty-state">
+                        <p>请选择一个文件夹开始监控</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            <p>文件夹监控与文件导航系统 &copy; 2023</p>
+        </footer>
+    </div>
+
+    <script>
+        // 全局变量
+        let selectedFolderHandle = null;
+        let isMonitoring = false;
+        let fileMap = new Map(); // 存储文件信息
+        let monitoringInterval = null;
+        
+        // DOM元素
+        const selectFolderBtn = document.getElementById('selectFolderBtn');
+        const startMonitoringBtn = document.getElementById('startMonitoringBtn');
+        const stopMonitoringBtn = document.getElementById('stopMonitoringBtn');
+        const clearLogBtn = document.getElementById('clearLogBtn');
+        const monitoringStatus = document.getElementById('monitoringStatus');
+        const monitoredFolder = document.getElementById('monitoredFolder');
+        const totalFiles = document.getElementById('totalFiles');
+        const lastChange = document.getElementById('lastChange');
+        const fileList = document.getElementById('fileList');
+        
+        // 事件监听
+        selectFolderBtn.addEventListener('click', selectFolder);
+        startMonitoringBtn.addEventListener('click', startMonitoring);
+        stopMonitoringBtn.addEventListener('click', stopMonitoring);
+        clearLogBtn.addEventListener('click', clearLog);
+        
+        // 选择文件夹
+        async function selectFolder() {
+            try {
+                // 检查浏览器是否支持File System Access API
+                if (!('showDirectoryPicker' in window)) {
+                    alert('您的浏览器不支持文件夹选择功能，请使用Chrome或Edge浏览器。');
+                    return;
+                }
+                
+                // 打开文件夹选择器
+                selectedFolderHandle = await window.showDirectoryPicker();
+                const folderName = selectedFolderHandle.name;
+                
+                // 更新UI
+                monitoredFolder.textContent = folderName;
+                startMonitoringBtn.disabled = false;
+                
+                // 扫描初始文件
+                await scanFolder(selectedFolderHandle);
+                
+                // 更新文件总数
+                totalFiles.textContent = fileMap.size;
+                
+                // 显示成功消息
+                showNotification(`已选择文件夹: ${folderName}`, 'success');
+                
+            } catch (error) {
+                console.error('选择文件夹时出错:', error);
+                if (error.name !== 'AbortError') {
+                    alert('选择文件夹时出错: ' + error.message);
+                }
+            }
+        }
+        
+        // 扫描文件夹
+        async function scanFolder(folderHandle, path = '') {
+            try {
+                for await (const entry of folderHandle.values()) {
+                    const fullPath = path ? `${path}/${entry.name}` : entry.name;
+                    
+                    if (entry.kind === 'file') {
+                        // 获取文件信息
+                        const file = await entry.getFile();
+                        const fileInfo = {
+                            name: entry.name,
+                            path: fullPath,
+                            handle: entry,
+                            size: file.size,
+                            lastModified: file.lastModified,
+                            type: file.type
+                        };
+                        
+                        // 添加到文件映射
+                        fileMap.set(fullPath, fileInfo);
+                    } else if (entry.kind === 'directory') {
+                        // 递归扫描子文件夹
+                        await scanFolder(entry, fullPath);
+                    }
+                }
+            } catch (error) {
+                console.error('扫描文件夹时出错:', error);
+            }
+        }
+        
+        // 开始监控
+        function startMonitoring() {
+            if (!selectedFolderHandle) {
+                alert('请先选择一个文件夹');
+                return;
+            }
+            
+            isMonitoring = true;
+            monitoringStatus.textContent = '监控中';
+            monitoringStatus.style.color = 'var(--success-color)';
+            startMonitoringBtn.disabled = true;
+            stopMonitoringBtn.disabled = false;
+            
+            // 每3秒检查一次文件变化
+            monitoringInterval = setInterval(async () => {
+                await checkForChanges();
+            }, 3000);
+            
+            showNotification('文件夹监控已启动', 'success');
+        }
+        
+        // 停止监控
+        function stopMonitoring() {
+            isMonitoring = false;
+            monitoringStatus.textContent = '已停止';
+            monitoringStatus.style.color = 'var(--danger-color)';
+            startMonitoringBtn.disabled = false;
+            stopMonitoringBtn.disabled = true;
+            
+            if (monitoringInterval) {
+                clearInterval(monitoringInterval);
+                monitoringInterval = null;
+            }
+            
+            showNotification('文件夹监控已停止', 'warning');
+        }
+        
+        // 检查文件变化
+        async function checkForChanges() {
+            try {
+                const newFileMap = new Map();
+                await scanFolder(selectedFolderHandle);
+                
+                // 检查新增和修改的文件
+                for (const [path, fileInfo] of fileMap.entries()) {
+                    const file = await fileInfo.handle.getFile();
+                    const existingFile = fileMap.get(path);
+                    
+                    if (!existingFile) {
+                        // 新增文件
+                        addFileToList(fileInfo, 'new');
+                        lastChange.textContent = `新增: ${fileInfo.name}`;
+                    } else if (file.lastModified !== existingFile.lastModified) {
+                        // 修改文件
+                        fileInfo.lastModified = file.lastModified;
+                        fileInfo.size = file.size;
+                        updateFileInList(fileInfo, 'modified');
+                        lastChange.textContent = `修改: ${fileInfo.name}`;
+                    }
+                    
+                    newFileMap.set(path, fileInfo);
+                }
+                
+                // 检查删除的文件
+                for (const [path, fileInfo] of fileMap.entries()) {
+                    if (!newFileMap.has(path)) {
+                        // 删除文件
+                        markFileAsDeleted(fileInfo);
+                        lastChange.textContent = `删除: ${fileInfo.name}`;
+                    }
+                }
+                
+                // 更新文件映射
+                fileMap = newFileMap;
+                totalFiles.textContent = fileMap.size;
+                
+            } catch (error) {
+                console.error('检查文件变化时出错:', error);
+            }
+        }
+        
+        // 添加文件到列表
+        function addFileToList(fileInfo, changeType = '') {
+            // 移除空状态提示
+            const emptyState = fileList.querySelector('.empty-state');
+            if (emptyState) {
+                emptyState.remove();
+            }
+            
+            // 创建文件项
+            const fileItem = document.createElement('div');
+            fileItem.className = `file-item ${changeType}`;
+            fileItem.dataset.path = fileInfo.path;
+            
+            // 文件图标
+            const fileIcon = getFileIcon(fileInfo.name);
+            
+            // 格式化文件大小
+            const fileSize = formatFileSize(fileInfo.size);
+            
+            // 格式化修改时间
+            const modifiedTime = new Date(fileInfo.lastModified).toLocaleString();
+            
+            fileItem.innerHTML = `
+                <div class="file-name">
+                    <div class="file-icon">${fileIcon}</div>
+                    <span>${fileInfo.name}</span>
+                    ${changeType ? `<span class="change-indicator change-${changeType}"></span>` : ''}
+                </div>
+                <div class="file-size">${fileSize}</div>
+                <div class="file-modified">${modifiedTime}</div>
+                <div class="file-action">
+                    <button class="action-btn open-file" data-path="${fileInfo.path}">打开</button>
+                    <button class="action-btn show-in-folder" data-path="${fileInfo.path}">定位</button>
+                </div>
+            `;
+            
+            // 添加到列表顶部
+            fileList.prepend(fileItem);
+            
+            // 添加事件监听
+            fileItem.querySelector('.open-file').addEventListener('click', () => openFile(fileInfo));
+            fileItem.querySelector('.show-in-folder').addEventListener('click', () => showInFolder(fileInfo));
+            
+            // 3秒后移除高亮效果
+            setTimeout(() => {
+                fileItem.classList.remove(changeType);
+            }, 3000);
+        }
+        
+        // 更新文件列表中的文件
+        function updateFileInList(fileInfo, changeType = '') {
+            const existingItem = fileList.querySelector(`[data-path="${fileInfo.path}"]`);
+            
+            if (existingItem) {
+                // 更新文件大小和修改时间
+                existingItem.querySelector('.file-size').textContent = formatFileSize(fileInfo.size);
+                existingItem.querySelector('.file-modified').textContent = new Date(fileInfo.lastModified).toLocaleString();
+                
+                // 添加修改指示器
+                const changeIndicator = document.createElement('span');
+                changeIndicator.className = `change-indicator change-${changeType}`;
+                existingItem.querySelector('.file-name').appendChild(changeIndicator);
+                
+                // 添加修改类
+                existingItem.classList.add(changeType);
+                
+                // 3秒后移除高亮效果
+                setTimeout(() => {
+                    existingItem.classList.remove(changeType);
+                    const indicator = existingItem.querySelector(`.change-${changeType}`);
+                    if (indicator) indicator.remove();
+                }, 3000);
+            } else {
+                // 如果不存在，添加新项
+                addFileToList(fileInfo, changeType);
+            }
+        }
+        
+        // 标记文件为已删除
+        function markFileAsDeleted(fileInfo) {
+            const existingItem = fileList.querySelector(`[data-path="${fileInfo.path}"]`);
+            
+            if (existingItem) {
+                existingItem.classList.add('deleted');
+                
+                // 添加删除指示器
+                const changeIndicator = document.createElement('span');
+                changeIndicator.className = 'change-indicator change-deleted';
+                existingItem.querySelector('.file-name').appendChild(changeIndicator);
+                
+                // 禁用操作按钮
+                const actionButtons = existingItem.querySelectorAll('.action-btn');
+                actionButtons.forEach(btn => {
+                    btn.disabled = true;
+                    btn.style.opacity = '0.5';
+                });
+                
+                // 3秒后移除项目
+                setTimeout(() => {
+                    existingItem.remove();
+                    
+                    // 如果列表为空，显示空状态
+                    if (fileList.children.length === 0) {
+                        fileList.innerHTML = `
+                            <div class="empty-state">
+                                <p>请选择一个文件夹开始监控</p>
+                            </div>
+                        `;
+                    }
+                }, 3000);
+            }
+        }
+        
+        // 打开文件
+        async function openFile(fileInfo) {
+            try {
+                const file = await fileInfo.handle.getFile();
+                const url = URL.createObjectURL(file);
+                window.open(url, '_blank');
+                
+                // 清理URL对象
+                setTimeout(() => URL.revokeObjectURL(url), 1000);
+                
+                showNotification(`已打开文件: ${fileInfo.name}`, 'success');
+            } catch (error) {
+                console.error('打开文件时出错:', error);
+                showNotification(`无法打开文件: ${fileInfo.name}`, 'error');
+            }
+        }
+        
+        // 在文件夹中显示文件
+        async function showInFolder(fileInfo) {
+            // 由于浏览器安全限制，无法直接打开系统文件管理器
+            // 这里我们模拟一个简单的文件路径显示
+            showNotification(`文件路径: ${fileInfo.path}`, 'info');
+            
+            // 在实际应用中，可以考虑使用Electron等框架来实现此功能
+            // 或者在APK中通过原生代码实现
+        }
+        
+        // 清空日志
+        function clearLog() {
+            fileList.innerHTML = `
+                <div class="empty-state">
+                    <p>请选择一个文件夹开始监控</p>
+                </div>
+            `;
+            
+            showNotification('日志已清空', 'info');
+        }
+        
+        // 获取文件图标
+        function getFileIcon(filename) {
+            const ext = filename.split('.').pop().toLowerCase();
+            
+            const iconMap = {
+                'pdf': '📄',
+                'doc': '📝',
+                'docx': '📝',
+                'txt': '📄',
+                'jpg': '🖼️',
+                'jpeg': '🖼️',
+                'png': '🖼️',
+                'gif': '🖼️',
+                'mp4': '🎬',
+                'avi': '🎬',
+                'mov': '🎬',
+                'mp3': '🎵',
+                'wav': '🎵',
+                'zip': '📦',
+                'rar': '📦',
+                'exe': '⚙️',
+                'html': '🌐',
+                'css': '🎨',
+                'js': '📜',
+                'json': '📋'
+            };
+            
+            return iconMap[ext] || '📄';
+        }
+        
+        // 格式化文件大小
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 B';
+            
+            const k = 1024;
+            const sizes = ['B', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+        
+        // 显示通知
+        function showNotification(message, type = 'info') {
+            // 创建通知元素
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.textContent = message;
+            
+            // 样式
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 12px 20px;
+                border-radius: var(--border-radius);
+                color: white;
+                font-weight: 600;
+                z-index: 1000;
+                box-shadow: var(--box-shadow);
+                transition: transform 0.3s ease, opacity 0.3s ease;
+                transform: translateX(100%);
+                opacity: 0;
+            `;
+            
+            // 设置背景颜色
+            const colorMap = {
+                'success': 'var(--success-color)',
+                'error': 'var(--danger-color)',
+                'warning': 'var(--warning-color)',
+                'info': 'var(--primary-color)'
+            };
+            
+            notification.style.backgroundColor = colorMap[type] || colorMap.info;
+            
+            // 添加到页面
+            document.body.appendChild(notification);
+            
+            // 显示动画
+            setTimeout(() => {
+                notification.style.transform = 'translateX(0)';
+                notification.style.opacity = '1';
+            }, 10);
+            
+            // 3秒后隐藏
+            setTimeout(() => {
+                notification.style.transform = 'translateX(100%)';
+                notification.style.opacity = '0';
+                
+                // 移除元素
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.parentNode.removeChild(notification);
+                    }
+                }, 300);
+            }, 3000);
+        }
+        
+        // 初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            showNotification('文件夹监控系统已就绪', 'info');
+        });
+    </script>
+</body>
+</html>
