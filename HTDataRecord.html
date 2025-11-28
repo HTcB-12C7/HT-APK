@@ -508,12 +508,27 @@
                             handle: entry,
                             size: file.size,
                             lastModified: file.lastModified,
-                            type: file.type
+                            type: file.type,
+                            isDirectory: false
                         };
                         
                         // 添加到文件映射
                         fileMap.set(fullPath, fileInfo);
                     } else if (entry.kind === 'directory') {
+                        // 添加文件夹信息
+                        const dirInfo = {
+                            name: entry.name,
+                            path: fullPath,
+                            handle: entry,
+                            size: 0,
+                            lastModified: Date.now(),
+                            type: 'directory',
+                            isDirectory: true
+                        };
+                        
+                        // 添加到文件映射
+                        fileMap.set(fullPath, dirInfo);
+                        
                         // 递归扫描子文件夹
                         await scanFolder(entry, fullPath);
                     }
@@ -574,12 +589,12 @@
                     const originalFile = originalFileMap.get(path);
                     
                     if (!originalFile) {
-                        // 新增文件
+                        // 新增文件或文件夹
                         addChangeToLog(fileInfo, 'new');
                         lastChange.textContent = `新增: ${fileInfo.name}`;
-                        showNotification(`检测到新文件: ${fileInfo.name}`, 'success');
-                    } else if (fileInfo.lastModified !== originalFile.lastModified) {
-                        // 修改文件
+                        showNotification(`检测到新${fileInfo.isDirectory ? '文件夹' : '文件'}: ${fileInfo.name}`, 'success');
+                    } else if (fileInfo.lastModified !== originalFile.lastModified && !fileInfo.isDirectory) {
+                        // 修改文件（文件夹不检查修改时间）
                         addChangeToLog(fileInfo, 'modified');
                         lastChange.textContent = `修改: ${fileInfo.name}`;
                         showNotification(`文件已修改: ${fileInfo.name}`, 'warning');
@@ -588,13 +603,13 @@
                     newFileMap.set(path, fileInfo);
                 }
                 
-                // 检查删除的文件
+                // 检查删除的文件和文件夹
                 for (const [path, fileInfo] of originalFileMap.entries()) {
                     if (!fileMap.has(path)) {
-                        // 删除文件
+                        // 删除文件或文件夹
                         addChangeToLog(fileInfo, 'deleted');
                         lastChange.textContent = `删除: ${fileInfo.name}`;
-                        showNotification(`文件已删除: ${fileInfo.name}`, 'error');
+                        showNotification(`${fileInfo.isDirectory ? '文件夹' : '文件'}已删除: ${fileInfo.name}`, 'error');
                     }
                 }
                 
@@ -663,13 +678,10 @@
             fileItem.dataset.path = changeRecord.path;
             
             // 文件图标
-            const fileIcon = getFileIcon(changeRecord.name);
+            const fileIcon = getFileIcon(changeRecord.name, changeRecord.isDirectory);
             
             // 格式化文件大小
-            const fileSize = formatFileSize(changeRecord.size);
-            
-            // 格式化修改时间
-            const modifiedTime = new Date(changeRecord.lastModified).toLocaleString();
+            const fileSize = changeRecord.isDirectory ? '文件夹' : formatFileSize(changeRecord.size);
             
             // 格式化时间戳
             const timestamp = new Date(changeRecord.timestamp).toLocaleString();
@@ -678,7 +690,7 @@
                 <div class="file-name">
                     <div style="display: flex; align-items: center; gap: 8px;">
                         <div class="file-icon">${fileIcon}</div>
-                        <span>${changeRecord.name}</span>
+                        <span>${changeRecord.name}${changeRecord.isDirectory ? ' (文件夹)' : ''}</span>
                         <span class="change-indicator change-${changeRecord.changeType}"></span>
                     </div>
                     <div class="file-path">${changeRecord.path}</div>
@@ -686,7 +698,7 @@
                 <div class="file-size">${fileSize}</div>
                 <div class="file-modified">${timestamp}</div>
                 <div class="file-action">
-                    <button class="action-btn open-file" data-path="${changeRecord.path}">打开</button>
+                    ${!changeRecord.isDirectory ? `<button class="action-btn open-file" data-path="${changeRecord.path}">打开</button>` : ''}
                     <button class="action-btn show-in-folder" data-path="${changeRecord.path}">定位</button>
                 </div>
             `;
@@ -695,7 +707,9 @@
             fileList.appendChild(fileItem);
             
             // 添加事件监听
-            fileItem.querySelector('.open-file').addEventListener('click', () => openFile(changeRecord));
+            if (!changeRecord.isDirectory) {
+                fileItem.querySelector('.open-file').addEventListener('click', () => openFile(changeRecord));
+            }
             fileItem.querySelector('.show-in-folder').addEventListener('click', () => showInFolder(changeRecord));
             
             // 3秒后移除高亮效果
@@ -739,7 +753,9 @@
         }
         
         // 获取文件图标
-        function getFileIcon(filename) {
+        function getFileIcon(filename, isDirectory = false) {
+            if (isDirectory) return '📁';
+            
             const ext = filename.split('.').pop().toLowerCase();
             
             const iconMap = {
