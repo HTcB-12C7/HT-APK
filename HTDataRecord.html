@@ -6,11 +6,11 @@
     <title>文件夹监控与文件导航系统</title>
     <style>
         :root {
-            --primary-color: #4a6fa5;
-            --secondary-color: #6b8cbc;
+            --primary-color: #1e88e5;
+            --secondary-color: #42a5f5;
             --accent-color: #ffd700;
             --light-color: #f5f7fa;
-            --dark-color: #2c3e50;
+            --dark-color: #333333;
             --success-color: #2ecc71;
             --warning-color: #f39c12;
             --danger-color: #e74c3c;
@@ -26,7 +26,7 @@
         }
         
         body {
-            background: linear-gradient(to bottom, #87CEEB, #E0F6FF);
+            background: linear-gradient(to bottom, #1565c0, #42a5f5);
             color: #333;
             line-height: 1.6;
             padding: 20px;
@@ -80,7 +80,7 @@
         .container {
             max-width: 1200px;
             margin: 0 auto;
-            background-color: rgba(255, 255, 255, 0.9);
+            background-color: rgba(255, 255, 255, 0.95);
             border-radius: var(--border-radius);
             box-shadow: var(--box-shadow);
             overflow: hidden;
@@ -104,7 +104,6 @@
         
         .subtitle {
             font-size: 1.1rem;
-            opacity: 0.9;
             color: #ffd700;
         }
         
@@ -135,7 +134,7 @@
             display: flex;
             align-items: center;
             gap: 8px;
-            background: linear-gradient(to bottom, #4a6fa5, #3a5f8a);
+            background: linear-gradient(to bottom, #1e88e5, #1565c0);
             color: #ffd700;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
         }
@@ -188,7 +187,7 @@
         
         .status-label {
             font-size: 0.9rem;
-            color: #7f8c8d;
+            color: #666;
         }
         
         .status-value {
@@ -259,8 +258,14 @@
         
         .file-name {
             display: flex;
-            align-items: center;
-            gap: 8px;
+            flex-direction: column;
+            gap: 5px;
+        }
+        
+        .file-path {
+            font-size: 0.8rem;
+            color: #666;
+            word-break: break-all;
         }
         
         .file-icon {
@@ -282,7 +287,7 @@
             border-radius: 4px;
             cursor: pointer;
             font-size: 0.8rem;
-            background: linear-gradient(to bottom, #4a6fa5, #3a5f8a);
+            background: linear-gradient(to bottom, #1e88e5, #1565c0);
             color: #ffd700;
             transition: all 0.2s;
         }
@@ -295,7 +300,7 @@
         .empty-state {
             padding: 40px 20px;
             text-align: center;
-            color: #7f8c8d;
+            color: #666;
         }
         
         .change-indicator {
@@ -322,7 +327,7 @@
             text-align: center;
             padding: 15px;
             background-color: rgba(255, 255, 255, 0.7);
-            color: #7f8c8d;
+            color: #666;
             font-size: 0.9rem;
             border-top: 1px solid rgba(255, 215, 0, 0.3);
         }
@@ -401,7 +406,7 @@
             
             <div class="file-list-container">
                 <div class="file-list-header">
-                    <span>文件名</span>
+                    <span>文件名与路径</span>
                     <span>大小</span>
                     <span>修改时间</span>
                     <span>操作</span>
@@ -424,9 +429,10 @@
         // 全局变量
         let selectedFolderHandle = null;
         let isMonitoring = false;
-        let fileMap = new Map(); // 存储文件信息
-        let monitoringInterval = null;
+        let fileMap = new Map(); // 存储当前文件信息
         let originalFileMap = new Map(); // 存储原始文件状态用于比较
+        let monitoringInterval = null;
+        let changeLog = []; // 存储变化日志
         
         // DOM元素
         const selectFolderBtn = document.getElementById('selectFolderBtn');
@@ -462,9 +468,10 @@
                 monitoredFolder.textContent = folderName;
                 startMonitoringBtn.disabled = false;
                 
-                // 清空文件列表
+                // 清空文件列表和日志
                 fileMap.clear();
                 originalFileMap.clear();
+                changeLog = [];
                 
                 // 扫描初始文件
                 await scanFolder(selectedFolderHandle);
@@ -474,9 +481,6 @@
                 
                 // 更新文件总数
                 totalFiles.textContent = fileMap.size;
-                
-                // 显示文件列表
-                renderFileList();
                 
                 // 显示成功消息
                 showNotification(`已选择文件夹: ${folderName}`, 'success');
@@ -571,12 +575,12 @@
                     
                     if (!originalFile) {
                         // 新增文件
-                        addFileToList(fileInfo, 'new');
+                        addChangeToLog(fileInfo, 'new');
                         lastChange.textContent = `新增: ${fileInfo.name}`;
                         showNotification(`检测到新文件: ${fileInfo.name}`, 'success');
                     } else if (fileInfo.lastModified !== originalFile.lastModified) {
                         // 修改文件
-                        updateFileInList(fileInfo, 'modified');
+                        addChangeToLog(fileInfo, 'modified');
                         lastChange.textContent = `修改: ${fileInfo.name}`;
                         showNotification(`文件已修改: ${fileInfo.name}`, 'warning');
                     }
@@ -588,7 +592,7 @@
                 for (const [path, fileInfo] of originalFileMap.entries()) {
                     if (!fileMap.has(path)) {
                         // 删除文件
-                        markFileAsDeleted(fileInfo);
+                        addChangeToLog(fileInfo, 'deleted');
                         lastChange.textContent = `删除: ${fileInfo.name}`;
                         showNotification(`文件已删除: ${fileInfo.name}`, 'error');
                     }
@@ -604,28 +608,49 @@
             }
         }
         
-        // 渲染文件列表
-        function renderFileList() {
+        // 添加变化到日志
+        function addChangeToLog(fileInfo, changeType) {
+            // 创建变化记录
+            const changeRecord = {
+                ...fileInfo,
+                changeType: changeType,
+                timestamp: new Date()
+            };
+            
+            // 添加到日志
+            changeLog.unshift(changeRecord);
+            
+            // 限制日志长度
+            if (changeLog.length > 100) {
+                changeLog = changeLog.slice(0, 100);
+            }
+            
+            // 更新显示
+            renderChangeLog();
+        }
+        
+        // 渲染变化日志
+        function renderChangeLog() {
             // 清空文件列表
             fileList.innerHTML = '';
             
-            if (fileMap.size === 0) {
+            if (changeLog.length === 0) {
                 fileList.innerHTML = `
                     <div class="empty-state">
-                        <p>文件夹为空</p>
+                        <p>暂无文件变化记录</p>
                     </div>
                 `;
                 return;
             }
             
-            // 添加所有文件到列表
-            for (const fileInfo of fileMap.values()) {
-                addFileToList(fileInfo);
+            // 添加所有变化记录到列表
+            for (const changeRecord of changeLog) {
+                addChangeToFileList(changeRecord);
             }
         }
         
-        // 添加文件到列表
-        function addFileToList(fileInfo, changeType = '') {
+        // 添加变化到文件列表
+        function addChangeToFileList(changeRecord) {
             // 移除空状态提示
             const emptyState = fileList.querySelector('.empty-state');
             if (emptyState) {
@@ -634,29 +659,35 @@
             
             // 创建文件项
             const fileItem = document.createElement('div');
-            fileItem.className = `file-item ${changeType}`;
-            fileItem.dataset.path = fileInfo.path;
+            fileItem.className = `file-item ${changeRecord.changeType}`;
+            fileItem.dataset.path = changeRecord.path;
             
             // 文件图标
-            const fileIcon = getFileIcon(fileInfo.name);
+            const fileIcon = getFileIcon(changeRecord.name);
             
             // 格式化文件大小
-            const fileSize = formatFileSize(fileInfo.size);
+            const fileSize = formatFileSize(changeRecord.size);
             
             // 格式化修改时间
-            const modifiedTime = new Date(fileInfo.lastModified).toLocaleString();
+            const modifiedTime = new Date(changeRecord.lastModified).toLocaleString();
+            
+            // 格式化时间戳
+            const timestamp = new Date(changeRecord.timestamp).toLocaleString();
             
             fileItem.innerHTML = `
                 <div class="file-name">
-                    <div class="file-icon">${fileIcon}</div>
-                    <span>${fileInfo.name}</span>
-                    ${changeType ? `<span class="change-indicator change-${changeType}"></span>` : ''}
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <div class="file-icon">${fileIcon}</div>
+                        <span>${changeRecord.name}</span>
+                        <span class="change-indicator change-${changeRecord.changeType}"></span>
+                    </div>
+                    <div class="file-path">${changeRecord.path}</div>
                 </div>
                 <div class="file-size">${fileSize}</div>
-                <div class="file-modified">${modifiedTime}</div>
+                <div class="file-modified">${timestamp}</div>
                 <div class="file-action">
-                    <button class="action-btn open-file" data-path="${fileInfo.path}">打开</button>
-                    <button class="action-btn show-in-folder" data-path="${fileInfo.path}">定位</button>
+                    <button class="action-btn open-file" data-path="${changeRecord.path}">打开</button>
+                    <button class="action-btn show-in-folder" data-path="${changeRecord.path}">定位</button>
                 </div>
             `;
             
@@ -664,79 +695,13 @@
             fileList.appendChild(fileItem);
             
             // 添加事件监听
-            fileItem.querySelector('.open-file').addEventListener('click', () => openFile(fileInfo));
-            fileItem.querySelector('.show-in-folder').addEventListener('click', () => showInFolder(fileInfo));
+            fileItem.querySelector('.open-file').addEventListener('click', () => openFile(changeRecord));
+            fileItem.querySelector('.show-in-folder').addEventListener('click', () => showInFolder(changeRecord));
             
-            // 如果是变化类型，3秒后移除高亮效果
-            if (changeType) {
-                setTimeout(() => {
-                    fileItem.classList.remove(changeType);
-                }, 3000);
-            }
-        }
-        
-        // 更新文件列表中的文件
-        function updateFileInList(fileInfo, changeType = '') {
-            const existingItem = fileList.querySelector(`[data-path="${fileInfo.path}"]`);
-            
-            if (existingItem) {
-                // 更新文件大小和修改时间
-                existingItem.querySelector('.file-size').textContent = formatFileSize(fileInfo.size);
-                existingItem.querySelector('.file-modified').textContent = new Date(fileInfo.lastModified).toLocaleString();
-                
-                // 添加修改指示器
-                const changeIndicator = document.createElement('span');
-                changeIndicator.className = `change-indicator change-${changeType}`;
-                existingItem.querySelector('.file-name').appendChild(changeIndicator);
-                
-                // 添加修改类
-                existingItem.classList.add(changeType);
-                
-                // 3秒后移除高亮效果
-                setTimeout(() => {
-                    existingItem.classList.remove(changeType);
-                    const indicator = existingItem.querySelector(`.change-${changeType}`);
-                    if (indicator) indicator.remove();
-                }, 3000);
-            } else {
-                // 如果不存在，添加新项
-                addFileToList(fileInfo, changeType);
-            }
-        }
-        
-        // 标记文件为已删除
-        function markFileAsDeleted(fileInfo) {
-            const existingItem = fileList.querySelector(`[data-path="${fileInfo.path}"]`);
-            
-            if (existingItem) {
-                existingItem.classList.add('deleted');
-                
-                // 添加删除指示器
-                const changeIndicator = document.createElement('span');
-                changeIndicator.className = 'change-indicator change-deleted';
-                existingItem.querySelector('.file-name').appendChild(changeIndicator);
-                
-                // 禁用操作按钮
-                const actionButtons = existingItem.querySelectorAll('.action-btn');
-                actionButtons.forEach(btn => {
-                    btn.disabled = true;
-                    btn.style.opacity = '0.5';
-                });
-                
-                // 3秒后移除项目
-                setTimeout(() => {
-                    existingItem.remove();
-                    
-                    // 如果列表为空，显示空状态
-                    if (fileList.children.length === 0) {
-                        fileList.innerHTML = `
-                            <div class="empty-state">
-                                <p>文件夹为空</p>
-                            </div>
-                        `;
-                    }
-                }, 3000);
-            }
+            // 3秒后移除高亮效果
+            setTimeout(() => {
+                fileItem.classList.remove(changeRecord.changeType);
+            }, 3000);
         }
         
         // 打开文件
@@ -768,12 +733,8 @@
         
         // 清空日志
         function clearLog() {
-            fileList.innerHTML = `
-                <div class="empty-state">
-                    <p>请选择一个文件夹开始监控</p>
-                </div>
-            `;
-            
+            changeLog = [];
+            renderChangeLog();
             showNotification('日志已清空', 'info');
         }
         
